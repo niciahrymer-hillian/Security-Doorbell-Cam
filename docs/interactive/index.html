@@ -1,0 +1,786 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security Doorbell Cam &mdash; Interactive Tour</title>
+<style>
+  :root { --bg:#0e1116; --accent:#94a3b8; --accent-deep:#64748B; --panel:#0000002e;
+          --text:#e6e6e6; --muted:#9aa0a6; --good:#4ade80; --bad:#f87171; --warn:#fbbf24; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  header{padding:18px 24px;border-bottom:1px solid #ffffff14}
+  header h1{margin:0;font-size:20px;color:var(--accent)}
+  header p{margin:6px 0 0;color:var(--muted);font-size:13px}
+  header .persist-note{margin-top:4px;font-size:11px;color:var(--muted);opacity:.8}
+  .badge{display:inline-block;background:var(--accent-deep);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px}
+  .pills{display:flex;gap:6px;flex-wrap:wrap;padding:12px 24px;border-bottom:1px solid #ffffff14}
+  .pill{font-size:12px;padding:4px 10px;border:1px solid #ffffff22;border-radius:999px;color:var(--muted);cursor:pointer;background:transparent}
+  .pill.active{background:var(--accent);color:#0e1116;font-weight:600;border-color:var(--accent)}
+  .pill.done{border-color:var(--good);color:var(--good)}
+  .pill.tool{border-style:dashed}
+  main{display:grid;grid-template-columns:1fr 1fr;min-height:60vh}
+  @media (max-width:880px){main{grid-template-columns:1fr}.lesson{border-right:none!important;border-bottom:1px solid #ffffff14}}
+  .lesson,.practice{padding:22px 24px}
+  .lesson{border-right:1px solid #ffffff14}
+  .lesson h2{color:var(--accent);margin-top:0;font-size:18px}
+  .lesson ul{padding-left:18px}.lesson li{margin:6px 0}
+  .trap{border-left:3px solid var(--warn);background:#fbbf2410;padding:10px 12px;border-radius:4px;margin:12px 0;font-size:14px}
+  .trap b{color:var(--warn)}
+  .worked{border-left:3px solid var(--accent-deep);background:#ffffff08;padding:10px 12px;border-radius:4px;margin:12px 0;font-size:14px}
+  figure{margin:14px 0}figcaption{color:var(--muted);font-size:12px;margin-top:6px}
+  .practice h3{margin-top:0;color:var(--accent);font-size:16px}
+  .nav{display:flex;gap:10px;align-items:center;padding:14px 24px;border-top:1px solid #ffffff14}
+  button{font:inherit}
+  button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer}
+  button.ghost:disabled{opacity:.35;cursor:not-allowed}
+  .counter{color:var(--muted);font-size:13px;margin-left:auto}
+  .qc{margin-top:16px;border-top:1px solid #ffffff14;padding-top:14px}
+  .qc h4{margin:0 0 8px;font-size:14px;color:var(--accent)}
+  .opt{all:unset;display:flex;align-items:center;gap:8px;padding:8px 10px;margin:4px 0;border:1px solid #ffffff1a;border-radius:8px;cursor:pointer;font-size:14px}
+  .opt:hover{border-color:var(--accent)}
+  .opt.correct{border-color:var(--good);background:#4ade8018}
+  .opt.wrong{border-color:var(--bad);background:#f8717118}
+  .opt[disabled]{cursor:default}
+  .explain{display:none;margin-top:8px;font-size:13px;color:var(--muted);border-left:2px solid var(--accent-deep);padding-left:10px}
+  .links{margin-top:14px;font-size:13px}
+  .links a{color:var(--accent);display:inline-block;margin:3px 0}
+  .links .kind{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-right:6px}
+  .video-card{display:flex;gap:10px;align-items:center;border:1px solid #ffffff1a;border-radius:8px;padding:8px;text-decoration:none;color:var(--text);margin-top:6px}
+  .video-card:hover{border-color:var(--accent)}
+  .video-card-thumb{width:96px;height:54px;border-radius:4px;background-size:cover;background-position:center;position:relative;flex-shrink:0}
+  .video-card-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;text-shadow:0 0 6px #000}
+  .video-card-info b{display:block;font-size:13px}
+  .video-card-info span{color:var(--muted);font-size:12px}
+  table.cheat{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}
+  table.cheat td,table.cheat th{border:1px solid #ffffff14;padding:6px 8px;text-align:left}
+  table.cheat th{color:var(--accent)}
+  code{background:#ffffff12;padding:1px 5px;border-radius:3px;font-family:ui-monospace,monospace;font-size:13px}
+  .quiz-wrap{padding:22px 24px;border-top:1px solid #ffffff14}
+  .q{margin-bottom:18px}.q p{font-weight:600;margin:0 0 6px}
+  #score{font-weight:700;color:var(--accent)}
+  .flash-stage{display:flex;justify-content:center;padding:18px 0;perspective:1200px}
+  .flash-card{width:min(420px,90%);height:190px;position:relative;cursor:pointer;transform-style:preserve-3d;transition:transform .45s}
+  .flash-card.flipped{transform:rotateY(180deg)}
+  .flash-face{position:absolute;inset:0;backface-visibility:hidden;border:1px solid #ffffff22;border-radius:12px;
+              display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;font-size:16px}
+  .flash-front{background:#ffffff08;color:var(--text);font-weight:700}
+  .flash-back{background:var(--accent-deep);color:#fff;transform:rotateY(180deg);font-size:14px;font-weight:400}
+  .flash-controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:8px}
+  .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .match-col{display:flex;flex-direction:column;gap:8px}
+  .match-btn{all:unset;padding:10px 12px;border:1px solid #ffffff1a;border-radius:8px;cursor:pointer;font-size:13px;text-align:left}
+  .match-btn:hover{border-color:var(--accent)}
+  .match-btn.sel{border-color:var(--accent);background:#94a3b818}
+  .match-btn.matched{border-color:var(--good);background:#4ade8018;opacity:.55;cursor:default}
+  .match-btn.wrong{border-color:var(--bad);background:#f8717118}
+  .md-section{border:1px solid #ffffff1a;border-radius:8px;padding:14px 16px;margin-top:14px}
+  .md-section h4{margin:0 0 8px;color:var(--accent);font-size:14px}
+  .md-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:13px;margin:8px 0}
+  .md-row label{color:var(--muted);display:flex;align-items:center;gap:5px}
+  .md-row input[type=number]{width:70px;background:#ffffff0c;border:1px solid #ffffff22;border-radius:6px;color:var(--text);padding:4px 8px;font-family:ui-monospace,monospace;font-size:13px}
+  .md-strip{display:flex;gap:1px;margin:10px 0;flex-wrap:wrap}
+  .md-cell{width:12px;height:22px;border-radius:1px}
+  .md-readout{background:#000;border-radius:6px;padding:10px 12px;margin-top:8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:#94a3b8}
+  .md-readout b{color:var(--accent)}
+  .md-legend{font-size:11.5px;color:var(--muted);display:flex;gap:14px;margin-top:6px}
+  .md-legend span{display:inline-flex;align-items:center;gap:5px}
+  .md-swatch{width:10px;height:10px;border-radius:2px;display:inline-block}
+  .report-card{border:1px solid #ffffff22;border-radius:10px;padding:20px 22px;max-width:560px}
+  .report-card h4{margin:16px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .report-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #ffffff10;font-size:14px}
+  .report-row .grade{font-weight:700}
+  .grade-A{color:var(--good)} .grade-B{color:#a3e635} .grade-C{color:var(--warn)} .grade-D,.grade-F{color:var(--bad)} .grade-dash{color:var(--muted)}
+  .report-overall{display:flex;align-items:baseline;gap:10px;margin:14px 0}
+  .report-overall .big{font-size:40px;font-weight:800}
+  #printBtn{margin-top:16px}
+  @media print{
+    header .persist-note, .pills, #nav, .report-card #printBtn{display:none!important}
+    body{background:#fff;color:#111}
+    .report-card{border-color:#ccc;max-width:none}
+    .report-row{border-bottom-color:#ddd}
+  }
+</style></head>
+<body>
+<header>
+  <h1>Security Doorbell Cam <span class="badge">Chain K &middot; Hands-on</span></h1>
+  <p>Camera &amp; motion detection &rarr; edge pipeline &amp; notifications &rarr; two-way audio &rarr;
+     storage &amp; weatherproofing. Debounce a real noisy PIR signal into confirmed events, and budget a
+     real end-to-end notification latency, in the <b>Motion &amp; Notification Pipeline Simulator</b>
+     tab before it's your own front door generating false alerts.</p>
+  <p class="persist-note">Progress (quick checks, quiz score, flashcards known) saves in this browser
+     only &mdash; localStorage, not an account. Clearing site data or switching browsers resets it.</p>
+</header>
+
+<div class="pills" id="pills"></div>
+
+<main>
+  <section class="lesson" id="lesson"></section>
+  <section class="practice" id="practice"></section>
+</main>
+
+<div class="nav" id="nav">
+  <button class="ghost" id="prev">&larr; Previous</button>
+  <button class="ghost" id="next">Next &rarr;</button>
+  <span class="counter" id="counter"></span>
+</div>
+
+<div class="quiz-wrap" id="quizWrap" style="display:none">
+  <h3 style="color:var(--accent);margin-top:0">Check Your Understanding</h3>
+  <div id="quiz"></div>
+  <p>Score: <span id="score">0</span> / <span id="total"></span></p>
+</div>
+
+<div class="quiz-wrap" id="toolWrap" style="display:none"></div>
+
+<script>
+const LESSONS = [
+{
+  short:"Camera & motion detection",
+  title:"Interfacing the camera and PIR, and debouncing false triggers",
+  body:`<p>A commercial doorbell hides two sensors behind one button-shaped device: a camera and a
+  motion sensor, each with its own real quirks worth understanding before writing a line of detection
+  code.</p>
+  <ul><li>The <b>Pi Camera</b> connects over CSI and captures frames or snapshots through a
+  straightforward API; a <b>PIR sensor</b> connects to a single GPIO pin and outputs a simple HIGH/LOW
+  signal — HIGH meaning "infrared motion detected right now."</li>
+  <li>The naive approach — notify on every HIGH reading — fires constantly. Sunlight, heat sources, and
+  moving foliage all produce brief HIGH flickers that aren't a person at the door.</li>
+  <li>The real fix is <b>debouncing</b>: require the signal to stay HIGH for a minimum sustained
+  duration before confirming a real event, and add a <b>cooldown period</b> after each confirmed event
+  so one person standing at the door for a few seconds doesn't generate five separate
+  notifications.</li></ul>
+  <div class="trap"><b>The trap — a listed Common Mistake:</b> PIR false-triggers from sunlight, heat
+  sources, or moving foliage. A PIR sensor with no adjustable sensitivity/delay pots (a Hardware Buying
+  Guide red flag) makes this worse — you'll want to tune both the hardware pots and a software debounce
+  window, not rely on either alone.</div>
+  <div class="worked"><b>Worked:</b> a raw PIR signal with 6 separate HIGH flickers — some real motion,
+  some sunlight noise — reduces to exactly 2 confirmed events once a minimum-duration debounce and
+  cooldown are applied. The 4 filtered-out flickers were never real events to begin with.</div>`,
+  practice:`<h3>Practice — Motion & Notification Pipeline Simulator</h3>
+  <ol><li>Open the <b>Motion &amp; Notification Pipeline Simulator</b> tab's debounce panel. Regenerate
+  a few noisy signals and watch how many raw flickers get filtered out versus confirmed.</li></ol>`,
+  quick:{ q:"Why does requiring the PIR signal to stay HIGH for a minimum duration (not just any HIGH reading) fix most false triggers?",
+    choices:["Brief flickers from sunlight or heat sources rarely sustain HIGH for as long as real, sustained motion does — the minimum-duration requirement filters them out specifically","It doesn't actually fix anything — false triggers are a hardware limitation with no software fix","PIR sensors physically cannot produce a HIGH reading from anything except real motion","Requiring a longer HIGH duration makes the sensor itself more sensitive to light"],
+    a:0, ex:"Debouncing exploits a real, checkable difference in duration between noise (brief flickers) and real motion (sustained HIGH) — it's a software filter targeting exactly that distinction, not a workaround for a hardware flaw." },
+  links:[
+    {type:"read", label:"Pi My Life Up — Raspberry Pi Motion Sensor using a PIR Sensor", url:"https://pimylifeup.com/raspberry-pi-motion-sensor/"}
+  ]
+},
+{
+  short:"Edge pipeline & notifications",
+  title:"Budgeting a detection pipeline's real latency",
+  body:`<p>This project is a real, complete edge-computing pipeline in miniature — and like any
+  pipeline, its usefulness depends on how fast it runs end to end, not just whether it eventually
+  works.</p>
+  <ul><li>The pipeline's shape: <b>sensor trigger</b> (a confirmed motion event) &rarr; <b>local
+  inference/decision</b> (even if that's just "debounce confirmed a real event," or a heavier
+  object-detection model if you add one) &rarr; <b>notification</b> (pushed to a phone).</li>
+  <li>A motion alert that arrives 30 seconds after someone's already left isn't useful — this project's
+  own target is becoming a phone alert in <b>under a couple of seconds</b>.</li>
+  <li>Each stage has a real time cost: capturing a frame, running the decision logic, and the network
+  round-trip to a push service. Budgeting them explicitly — not just hoping the total is fast enough —
+  is the actual engineering here.</li></ul>
+  <div class="trap"><b>The trap — a listed Common Mistake:</b> notification latency when the detection
+  pipeline is too heavy for a Zero-class board. Running a full object-detection model on hardware
+  that's not fast enough for it blows the latency budget regardless of how good the algorithm is —
+  matching compute to the board's real capability matters as much as the algorithm itself.</li></ul>
+  <div class="worked"><b>Worked:</b> a pipeline budgeting capture at 150ms, inference at 800ms, and
+  notify at 400ms totals 1,350ms — comfortably under a 2,000ms target. Swap in a heavier inference
+  stage at 2,000ms alone and the same pipeline blows the budget even with capture and notify completely
+  unchanged.</div>`,
+  practice:`<h3>Practice — Motion & Notification Pipeline Simulator</h3>
+  <ol><li>Open the Simulator's latency panel. Try a heavy inference value (e.g. 2000ms) and watch the
+  pipeline miss its target even though the other two stages didn't change.</li></ol>`,
+  quick:{ q:"A doorbell's notification pipeline consistently misses its 2-second latency target. The capture and network stages are already fast. What's the most likely effective fix?",
+    choices:["Reduce the inference/decision stage's cost — e.g. a lighter detection method, or better-matched hardware — since it's the stage actually eating the budget","Add a faster home internet connection, regardless of which stage is slow","Increase the PIR sensor's sensitivity","Add more storage to the SD card"],
+    a:0, ex:"If capture and network are already fast, the inference/decision stage is where the time is actually going — fixing the stage that's actually slow is the effective move, not upgrading something that was never the bottleneck." },
+  links:[
+    {type:"watch", vid:"VFAqYllWhm0", channel:"BMonster Laboratory", label:"Real Time Motion Notifications with Raspberry Pi 5 and NTFY", url:"https://www.youtube.com/watch?v=VFAqYllWhm0"}
+  ]
+},
+{
+  short:"Two-way audio",
+  title:"Wiring a real intercom without feedback",
+  body:`<p>Two-way audio is what turns a camera-plus-notification setup into an actual intercom — the
+  full "someone's at the door, and you can talk to them" feature.</p>
+  <ul><li>A <b>microphone</b> captures the visitor's voice; a <b>speaker</b> (driven through an
+  amplifier) plays the resident's voice back — straightforward in concept, wired similarly to
+  Cyberdeck-Cellular-And-Media's audio setup.</li>
+  <li>The real risk in a small enclosure is <b>acoustic feedback</b>: sound from the speaker travels
+  back into the microphone, gets amplified again, and squeals — a physical acoustics problem, not
+  something a wiring diagram alone can prevent.</li>
+  <li>The fix is real <b>physical separation</b> between the speaker and mic within the enclosure
+  (and/or software echo cancellation if separation alone isn't quite enough).</li></ul>
+  <div class="trap"><b>The trap — a listed Common Mistake:</b> running the amp/speaker too close to the
+  mic, causing feedback in a small enclosure — the exact same acoustic problem Walkie-Talkie-Build's
+  audio hardware faces, here in an even more space-constrained doorbell housing.</div>
+  <div class="worked"><b>Worked:</b> the same speaker-and-mic hardware, mounted close together, produces
+  audible feedback within seconds of testing; the same hardware repositioned with real physical
+  separation (or a barrier between them) runs cleanly with no code changes at all.</div>`,
+  practice:`<h3>Practice — if adding two-way audio</h3>
+  <ol><li>Before finalizing your enclosure layout, mock up the speaker and mic placement and listen for
+  feedback with everything at a normal volume, not just powered on silently.</li></ol>`,
+  quick:{ q:"Why does physical separation between the speaker and mic specifically reduce feedback, rather than just being general good practice?",
+    choices:["Feedback happens when speaker output travels back into the mic and gets re-amplified; increasing the physical distance/barrier between them directly reduces how much sound makes that round trip","Feedback is caused entirely by software bugs, unrelated to physical hardware placement","Speakers and microphones are electrically incompatible if placed near each other","Physical separation only matters for aesthetics, not audio performance"],
+    a:0, ex:"Feedback is a real acoustic loop — speaker output reaching the mic, being re-amplified, and repeating. Physical distance or a barrier directly reduces how much of that sound completes the loop, which is why it's a hardware-layout fix, not just a wiring correctness issue." },
+  links:[
+    {type:"read", label:"Fast Video Doorbell / Intercom on Raspberry Pi", url:"https://www.instructables.com/Fast-Video-Doorbell-Intercom-on-Raspberry-Pi/"}
+  ]
+},
+{
+  short:"Storage & weatherproofing",
+  title:"Local footage retention, and weatherproofing camera vs PIR differently",
+  body:`<p>Keeping footage on your own hardware (the whole point of this project versus a commercial
+  cloud subscription) means actually managing that storage — and, if mounted outside, protecting two
+  different sensors in two genuinely different ways.</p>
+  <ul><li><b>Continuous recording</b> fills an SD card fast and wears it out faster (SD cards have
+  limited write cycles); <b>motion-triggered recording</b> — only recording when a debounced event
+  fires — uses far less storage and far fewer writes.</li>
+  <li>A real <b>rolling-storage policy</b> (a max total size or max age, deleting the oldest footage
+  first once the limit is hit) is the actual fix for "the SD card filled up" — the same pattern real
+  NVR/surveillance software like MotionEyeOS uses, not something you have to invent from scratch.</li>
+  <li><b>Weatherproofing detail specific to this project</b>: the camera can sit behind a sealed clear
+  acrylic window (never tinted — tinting kills night IR performance), but the <b>PIR sensor's fresnel
+  lens has to stay physically exposed</b> (gasket-ringed, not covered) since it needs direct IR
+  line-of-sight — it genuinely cannot sense motion through an enclosure wall the way a camera can see
+  through clear acrylic.</li></ul>
+  <div class="trap"><b>The trap:</b> letting local footage fill the SD card with no retention policy at
+  all. Recording is only useful if the storage never actually runs out — a rolling max-size or max-days
+  limit is the fix, applied automatically, not something to notice only after the card is already
+  full.</div>
+  <div class="worked"><b>Worked:</b> the same enclosure design uses two different physical solutions for
+  two different sensing problems — a sealed acrylic window for the camera (light passes through clear
+  plastic fine) and a bare, gasket-ringed opening for the PIR (infrared motion sensing needs a direct
+  line of sight the camera's optics don't).</div>`,
+  practice:`<h3>Practice — before mounting outside</h3>
+  <ol><li>Set an explicit retention limit (max size or max days) for local footage before your first
+  real outdoor test — don't wait to discover the card filled up.</li></ol>`,
+  quick:{ q:"Why can't the PIR sensor sit behind the same sealed acrylic window the camera does?",
+    choices:["The PIR sensor's fresnel lens needs a direct infrared line-of-sight to detect motion — it can't sense through an enclosure wall the way visible light passes through clear acrylic for the camera","PIR sensors are larger than cameras and physically don't fit behind a window","Acrylic windows are illegal to use with infrared sensors","The camera also needs direct exposure, identical to the PIR sensor"],
+    a:0, ex:"A camera's optics can see through clear acrylic just fine — light passes through. A PIR sensor's infrared detection genuinely needs a direct, unobstructed line of sight, which is a real physical difference between the two sensing methods, not an arbitrary design choice." },
+  links:[
+    {type:"read", label:"MotionEyeOS — Free Raspberry Pi Surveillance System", url:"https://motioneyeos.org/"}
+  ]
+}
+];
+
+const QUIZ = [
+ {q:"Why does requiring the PIR signal to stay HIGH for a minimum duration fix most false triggers, rather than just filtering by signal strength?",
+  o:["Brief flickers from sunlight or heat sources rarely sustain HIGH for as long as real, sustained motion — a minimum-duration requirement targets exactly that timing difference","PIR sensors have no concept of duration, only on/off state","Signal strength filtering and duration filtering are functionally identical","Minimum-duration filtering only works on cameras, never on PIR sensors"],c:0,
+  ex:"Debouncing exploits a real, checkable difference in duration between noise (brief) and real motion (sustained) — a deliberate, targeted filter, not a generic noise-reduction trick."},
+ {q:"Why does a cooldown period after a confirmed motion event matter, beyond the debounce duration check itself?",
+  o:["Without it, one person standing at the door for several seconds could trigger multiple separate notifications for what is really a single visit","Cooldown periods are purely a battery-saving feature with no effect on notification count","Cooldown periods make the PIR sensor more sensitive after each event","Cooldown periods are required by law for any motion-sensing device"],c:0,
+  ex:"The debounce duration confirms a single event started; the cooldown prevents that same ongoing motion from being re-confirmed as several separate events in a row."},
+ {q:"A doorbell's pipeline consistently misses its latency target even though capture and network stages are already fast. What's the most effective fix?",
+  o:["Reduce the cost of the inference/decision stage specifically, since that's where the time is actually going","Upgrade the home internet connection regardless of which stage is actually slow","Increase the PIR sensor's sensitivity setting","Add more local storage capacity"],c:0,
+  ex:"If two of three stages are already fast, the third stage is where the budget is being spent — fixing the stage that's actually the bottleneck is the effective move."},
+ {q:"Why does physical separation between a doorbell's speaker and microphone reduce audio feedback?",
+  o:["Feedback is a real acoustic loop where speaker output reaches the mic and gets re-amplified; more physical distance or a barrier directly reduces how much sound completes that loop","Feedback is caused only by software bugs unrelated to physical hardware placement","Speakers and microphones cannot function at all if placed within the same enclosure","Physical separation is a cosmetic consideration with no acoustic effect"],c:0,
+  ex:"Feedback specifically depends on how much speaker output makes it back into the mic — real physical distance or a barrier directly cuts down that acoustic path."},
+ {q:"Why is a rolling storage policy (max size or max days, deleting oldest first) the real fix for local footage filling up an SD card?",
+  o:["It automatically keeps storage bounded on an ongoing basis, rather than requiring someone to notice and manually clear space only after the card is already full","Rolling storage policies actually increase total available storage capacity","SD cards automatically expand their capacity when a rolling policy is enabled","Rolling storage only works with cloud-based storage, not local SD cards"],c:0,
+  ex:"The actual problem is unbounded growth with no automatic cap. A rolling policy enforces a bound continuously, which is exactly why real NVR/surveillance software uses this pattern by default."},
+ {q:"Why can't a PIR sensor sit behind the same sealed acrylic window a doorbell's camera does?",
+  o:["A PIR sensor's fresnel lens needs a direct infrared line-of-sight to detect motion, which an enclosure wall blocks — unlike visible light, which passes through clear acrylic fine for the camera","PIR sensors are too large to fit behind any enclosure window","Cameras also require bare, unsealed exposure, identical to PIR sensors","Acrylic specifically blocks visible light but not infrared, so this isn't actually a real constraint"],c:0,
+  ex:"This is a genuine physical difference between the two sensing methods: a camera's optics work fine through clear acrylic, but a PIR sensor's infrared detection needs a truly direct, unobstructed line of sight."},
+ {q:"Why does the Hardware Buying Guide flag a PIR sensor with no adjustable sensitivity or delay as a red flag?",
+  o:["Tuning both settings is usually necessary to get a usable false-trigger rate — a sensor without that adjustment leaves you far more dependent on software debouncing alone to fix a hardware-level problem","Adjustable sensitivity is purely a cosmetic feature with no effect on detection accuracy","All PIR sensors have identical, fixed sensitivity regardless of what's advertised","Sensitivity and delay adjustments are only relevant for cameras, never PIR sensors"],c:0,
+  ex:"Both hardware-level tuning and software debouncing address the same false-trigger problem from different angles — losing the hardware adjustment option makes the software fix carry more of the burden alone."}
+];
+
+/* Key terms — pulled from the bolded/code terms across the four lessons above. */
+const KEY_TERMS = [
+  ["PIR sensor", "Outputs a simple HIGH/LOW signal on a GPIO pin — HIGH meaning infrared motion detected right now."],
+  ["Debounce (motion)", "Require the signal to stay HIGH for a minimum sustained duration before confirming a real event."],
+  ["Cooldown period", "A pause after a confirmed event so one ongoing motion doesn't generate several separate notifications."],
+  ["Raw high run vs confirmed event", "Every brief HIGH flicker is a 'raw run'; only sustained ones that pass the debounce check become confirmed events."],
+  ["Edge pipeline (capture/inference/notify)", "Sensor trigger → local decision → notification — the real shape of this project's detection pipeline."],
+  ["Latency budget", "The real time cost of each pipeline stage, summed and checked against a usability target."],
+  ["\"Useful within seconds\" target", "A motion alert that arrives long after the fact isn't useful — this project's own ~2-second target."],
+  ["Zero-class board compute limit", "Running detection too heavy for the board blows the latency budget regardless of the algorithm's quality."],
+  ["Two-way audio / intercom", "Mic captures the visitor's voice; speaker (via amp) plays the resident's voice back."],
+  ["Audio feedback", "Speaker output reaching the mic and re-amplifying — a real acoustic loop, not a wiring bug."],
+  ["Physical mic/speaker separation", "The actual fix for feedback in a small enclosure — real distance or a barrier, not just careful wiring."],
+  ["Local footage retention", "Keeping footage on your own hardware instead of a vendor's cloud — the whole point of this build."],
+  ["Rolling storage policy", "Max size or max age, deleting oldest footage first — the real fix for unbounded storage growth."],
+  ["Motion-triggered vs continuous recording", "Recording only on confirmed events uses far less storage and SD-card write wear than 24/7 recording."],
+  ["SD card write-cycle wear", "A real hardware lifespan limit — a reason to minimize unnecessary continuous writes."],
+  ["Camera behind sealed window", "Visible light passes through clear acrylic fine — the camera can be fully sealed behind it."],
+  ["PIR fresnel lens exposure requirement", "Needs direct IR line-of-sight — cannot sense motion through an enclosure wall the way a camera sees through acrylic."],
+  ["Official Camera Module driver support", "Generic camera clones often lack the driver support the official module has — a real buying-guide distinction."]
+];
+
+const STATE_KEY = 'chainK_securityDoorbellCam_v1';
+function loadState(){
+  try{ const raw = localStorage.getItem(STATE_KEY); return raw ? JSON.parse(raw) : null; }
+  catch(e){ return null; }
+}
+function saveState(){
+  try{
+    localStorage.setItem(STATE_KEY, JSON.stringify({
+      answered, quizScore: score, quizDone: [...done], fcKnown: [...fcKnown],
+      popLastScore, popLastTotal, popAttemptsCount, matchBestAttempts,
+      mdMinHigh, mdCooldown, mdCaptureMs, mdInferenceMs, mdNotifyMs, mdTargetMs, mdSignal
+    }));
+  }catch(e){ /* storage unavailable — progress just won't persist this session */ }
+}
+const SAVED = loadState();
+
+let idx = 0;
+const answered = SAVED && Array.isArray(SAVED.answered) && SAVED.answered.length === LESSONS.length
+  ? SAVED.answered.slice() : new Array(LESSONS.length).fill(false);
+
+function videoCard(l){
+  return `<a class="video-card" href="${l.url}" target="_blank" rel="noopener">
+    <span class="video-card-thumb" style="background-image:url('https://img.youtube.com/vi/${l.vid}/hqdefault.jpg')">
+      <span class="video-card-play">&#9658;</span></span>
+    <span class="video-card-info"><b>${l.label}</b><span>${l.channel} &middot; opens on YouTube</span></span></a>`;
+}
+function renderLinks(links){
+  if(!links || !links.length) return '';
+  const rows = links.map(l => l.type === 'watch'
+    ? videoCard(l)
+    : `<div><span class="kind">${l.type}</span><a href="${l.url}" target="_blank" rel="noopener">${l.label}</a></div>`).join('');
+  return `<div class="links"><h4 style="margin:0 0 6px;font-size:14px;color:var(--accent)">Continue learning</h4>${rows}</div>`;
+}
+function renderQuick(i){
+  const q = LESSONS[i].quick;
+  if(!q) return '';
+  const isDone = answered[i];
+  return `<div class="qc"><h4>Quick check</h4><p style="margin:0 0 6px;font-size:14px">${q.q}</p>
+    <div id="qcopts">${q.choices.map((c,ci)=>`<button class="opt ${isDone && ci===q.a?'correct':''}" data-ci="${ci}" ${isDone?'disabled':''}>${c}</button>`).join('')}</div>
+    <div class="explain" id="qcex" style="${isDone?'display:block':''}">${isDone?q.ex:''}</div></div>`;
+}
+
+const TOOLS = ['Flashcards','Match','Pop Quiz','Cheat Sheet','Motion & Notification Pipeline Simulator','Report Card'];
+function pillsHTML(){
+  const lessonPills = LESSONS.map((l,i)=>
+    `<button class="pill ${i===idx?'active':''} ${answered[i]?'done':''}" data-i="${i}">${i+1}. ${l.short}</button>`).join('');
+  const quizPill = `<button class="pill ${idx===LESSONS.length?'active':''}" data-i="${LESSONS.length}">Quiz</button>`;
+  const toolPills = TOOLS.map((t,ti)=>{
+    const i = LESSONS.length + 1 + ti;
+    return `<button class="pill tool ${i===idx?'active':''}" data-i="${i}">${t}</button>`;
+  }).join('');
+  return lessonPills + quizPill + toolPills;
+}
+function render(){
+  document.getElementById('pills').innerHTML = pillsHTML();
+  const isQuiz = idx === LESSONS.length;
+  const isTool = idx > LESSONS.length;
+  document.querySelector('main').style.display = (isQuiz || isTool) ? 'none' : 'grid';
+  document.getElementById('quizWrap').style.display = isQuiz ? 'block' : 'none';
+  document.getElementById('toolWrap').style.display = isTool ? 'block' : 'none';
+  document.getElementById('nav').style.display = isTool ? 'none' : 'flex';
+  if(isTool){ renderTool(idx - LESSONS.length - 1); return; }
+  if(isQuiz){ document.getElementById('counter').textContent = 'Final quiz'; renderQuiz(); syncNav(); return; }
+  const L = LESSONS[idx];
+  document.getElementById('lesson').innerHTML =
+    `<h2>${idx+1}. ${L.title}</h2>${L.body}${renderLinks(L.links)}${renderQuick(idx)}`;
+  document.getElementById('practice').innerHTML = L.practice;
+  document.getElementById('counter').textContent = `Lesson ${idx+1} of ${LESSONS.length}`;
+  const opts = document.getElementById('qcopts');
+  if(opts) opts.addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if(!b || b.disabled) return;
+    const q = LESSONS[idx].quick, pick = +b.dataset.ci;
+    [...opts.children].forEach((el,ci)=>{ el.disabled = true;
+      if(ci===q.a) el.classList.add('correct'); else if(ci===pick) el.classList.add('wrong'); });
+    const ex = document.getElementById('qcex'); ex.textContent = q.ex; ex.style.display='block';
+    answered[idx] = true;
+    saveState();
+    syncNav(); render2Pills();
+  });
+  syncNav();
+}
+function render2Pills(){
+  document.querySelectorAll('.pill').forEach((p,i)=>{ if(answered[i]) p.classList.add('done'); });
+}
+function syncNav(){
+  document.getElementById('prev').disabled = idx === 0;
+  const n = document.getElementById('next');
+  const gated = idx < LESSONS.length && !answered[idx];
+  n.disabled = idx > LESSONS.length - 1 || gated;
+  n.textContent = gated ? 'Answer the quick check to continue' : 'Next →';
+}
+
+let score = SAVED && Number.isFinite(SAVED.quizScore) ? SAVED.quizScore : 0;
+let done = new Set(SAVED && Array.isArray(SAVED.quizDone) ? SAVED.quizDone : []);
+function renderQuiz(){
+  document.getElementById('total').textContent = QUIZ.length;
+  document.getElementById('quiz').innerHTML = QUIZ.map((it,qi)=>{
+    const isDone = done.has(qi);
+    return `<div class="q"><p>${qi+1}. ${it.q}</p>
+      <div data-q="${qi}">${it.o.map((o,oi)=>`<button class="opt ${isDone && oi===it.c?'correct':''}" data-q="${qi}" data-o="${oi}" ${isDone?'disabled':''}>${o}</button>`).join('')}</div>
+      <div class="explain" id="qex${qi}" style="${isDone?'display:block':''}">${isDone?it.ex:''}</div></div>`;
+  }).join('');
+  document.getElementById('score').textContent = score;
+}
+document.getElementById('quiz').addEventListener('click', e => {
+  const b = e.target.closest('.opt'); if(!b || b.disabled) return;
+  const qi = +b.dataset.q, oi = +b.dataset.o, it = QUIZ[qi];
+  if(done.has(qi)) return; done.add(qi);
+  b.parentElement.querySelectorAll('.opt').forEach((el,i)=>{ el.disabled = true;
+    if(i===it.c) el.classList.add('correct'); else if(i===oi) el.classList.add('wrong'); });
+  const ex = document.getElementById('qex'+qi); ex.textContent = it.ex; ex.style.display='block';
+  if(oi===it.c){ score++; document.getElementById('score').textContent = score; }
+  saveState();
+});
+
+function shuffled(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; }
+  return a;
+}
+function renderTool(view){
+  if(view===0) return renderFlash();
+  if(view===1) return renderMatch();
+  if(view===2) return renderPop();
+  if(view===3) return renderCheat();
+  if(view===4) return renderMotionSim();
+  if(view===5) return renderReportCard();
+}
+
+let fcIdx = 0;
+const fcKnown = new Set(SAVED && Array.isArray(SAVED.fcKnown) ? SAVED.fcKnown : []);
+function renderFlash(){
+  const t = KEY_TERMS[fcIdx];
+  document.getElementById('toolWrap').innerHTML = `
+    <h3 style="color:var(--accent);margin-top:0">Flashcards</h3>
+    <p style="color:var(--muted);font-size:13px">Click a card to flip it. ${fcKnown.size} / ${KEY_TERMS.length} marked known.</p>
+    <div class="flash-stage"><div class="flash-card" id="flashCard">
+      <div class="flash-face flash-front">${t[0]}</div>
+      <div class="flash-face flash-back">${t[1]}</div>
+    </div></div>
+    <div class="flash-controls">
+      <button class="ghost" id="fcPrev">&larr; Prev</button>
+      <span class="counter" style="margin:0 6px">${fcIdx+1} / ${KEY_TERMS.length}</span>
+      <button class="ghost" id="fcKnow">${fcKnown.has(fcIdx) ? '✓ Known' : 'Mark known'}</button>
+      <button class="ghost" id="fcNext">Next &rarr;</button>
+    </div>`;
+  document.getElementById('flashCard').onclick = () => document.getElementById('flashCard').classList.toggle('flipped');
+  document.getElementById('fcPrev').onclick = () => { fcIdx = (fcIdx - 1 + KEY_TERMS.length) % KEY_TERMS.length; renderFlash(); };
+  document.getElementById('fcNext').onclick = () => { fcIdx = (fcIdx + 1) % KEY_TERMS.length; renderFlash(); };
+  document.getElementById('fcKnow').onclick = () => {
+    if(fcKnown.has(fcIdx)) fcKnown.delete(fcIdx); else fcKnown.add(fcIdx);
+    saveState(); renderFlash();
+  };
+}
+
+let matchPairs = [], matchTermOrder = [], matchDefOrder = [], matchSel = null, matchMatched = new Set(), matchAttempts = 0;
+let matchBestAttempts = SAVED && Number.isFinite(SAVED.matchBestAttempts) ? SAVED.matchBestAttempts : null;
+function newMatchRound(){
+  const n = Math.min(8, KEY_TERMS.length);
+  const idxs = shuffled([...Array(KEY_TERMS.length).keys()]).slice(0, n);
+  matchPairs = idxs.map(i => ({ key:i, term:KEY_TERMS[i][0], def:KEY_TERMS[i][1] }));
+  matchTermOrder = shuffled(matchPairs);
+  matchDefOrder = shuffled(matchPairs);
+  matchSel = null; matchMatched = new Set(); matchAttempts = 0;
+}
+function matchBtn(p, side){
+  const isMatched = matchMatched.has(p.key);
+  const isSel = matchSel && matchSel.key === p.key && matchSel.side === side;
+  const label = side === 'term' ? p.term : p.def;
+  return `<button class="match-btn ${isMatched?'matched':''} ${isSel?'sel':''}" data-key="${p.key}" data-side="${side}" ${isMatched?'disabled':''}>${label}</button>`;
+}
+function matchStatusText(){
+  if(matchMatched.size === matchPairs.length) return `Solved in ${matchAttempts} attempts!`;
+  return `Match each term to its definition. Attempts: ${matchAttempts}`;
+}
+function renderMatch(){
+  if(!matchPairs.length) newMatchRound();
+  document.getElementById('toolWrap').innerHTML = `
+    <h3 style="color:var(--accent);margin-top:0">Match</h3>
+    <p style="color:var(--muted);font-size:13px" id="matchStatus">${matchStatusText()}</p>
+    <div class="match-grid">
+      <div class="match-col">${matchTermOrder.map(p => matchBtn(p,'term')).join('')}</div>
+      <div class="match-col">${matchDefOrder.map(p => matchBtn(p,'def')).join('')}</div>
+    </div>
+    <button class="ghost" id="matchNew" style="margin-top:14px">New round</button>`;
+  document.querySelectorAll('.match-btn').forEach(b => b.addEventListener('click', onMatchClick));
+  document.getElementById('matchNew').onclick = () => { newMatchRound(); renderMatch(); };
+}
+function onMatchClick(e){
+  const b = e.currentTarget;
+  const key = +b.dataset.key, side = b.dataset.side;
+  if(matchMatched.has(key)) return;
+  if(!matchSel || matchSel.side === side){ matchSel = { key, side }; renderMatch(); return; }
+  matchAttempts++;
+  if(matchSel.key === key){
+    matchMatched.add(key);
+    matchSel = null;
+    if(matchMatched.size === matchPairs.length){
+      if(matchBestAttempts === null || matchAttempts < matchBestAttempts) matchBestAttempts = matchAttempts;
+      saveState();
+    }
+    renderMatch();
+  } else {
+    b.classList.add('wrong');
+    const status = document.getElementById('matchStatus');
+    if(status) status.textContent = `Not quite. Attempts: ${matchAttempts}`;
+    setTimeout(() => { matchSel = null; renderMatch(); }, 500);
+  }
+}
+
+function popPool(){
+  const fromLessons = LESSONS.filter(l => l.quick).map(l => ({ q:l.quick.q, opts:l.quick.choices, correct:l.quick.a, ex:l.quick.ex }));
+  const fromQuiz = QUIZ.map(q => ({ q:q.q, opts:q.o, correct:q.c, ex:q.ex }));
+  return [...fromLessons, ...fromQuiz];
+}
+let popSet = [], popIdx = 0, popScore = 0, popDone = false;
+let popLastScore = SAVED && Number.isFinite(SAVED.popLastScore) ? SAVED.popLastScore : null;
+let popLastTotal = SAVED && Number.isFinite(SAVED.popLastTotal) ? SAVED.popLastTotal : null;
+let popAttemptsCount = SAVED && Number.isFinite(SAVED.popAttemptsCount) ? SAVED.popAttemptsCount : 0;
+function newPop(){
+  const pool = shuffled(popPool());
+  popSet = pool.slice(0, Math.min(5, pool.length));
+  popIdx = 0; popScore = 0; popDone = false;
+}
+function renderPop(){
+  if(!popSet.length) newPop();
+  if(popDone){
+    document.getElementById('toolWrap').innerHTML = `
+      <h3 style="color:var(--accent);margin-top:0">Pop Quiz</h3>
+      <p>Score: <b>${popScore} / ${popSet.length}</b></p>
+      <button class="ghost" id="popAgain">Try another 5</button>`;
+    document.getElementById('popAgain').onclick = () => { newPop(); renderPop(); };
+    return;
+  }
+  const it = popSet[popIdx];
+  document.getElementById('toolWrap').innerHTML = `
+    <h3 style="color:var(--accent);margin-top:0">Pop Quiz</h3>
+    <p style="color:var(--muted);font-size:13px">Question ${popIdx+1} of ${popSet.length} &middot; Score so far: ${popScore}</p>
+    <div class="qc"><p style="font-weight:600;font-size:14px;margin:0 0 6px">${it.q}</p>
+      <div id="popOpts">${it.opts.map((o,oi)=>`<button class="opt" data-oi="${oi}">${o}</button>`).join('')}</div>
+      <div class="explain" id="popEx"></div></div>
+    <button class="ghost" id="popNext" style="margin-top:12px;display:none">Next &rarr;</button>`;
+  document.getElementById('popOpts').addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if(!b || b.disabled) return;
+    const oi = +b.dataset.oi;
+    [...document.getElementById('popOpts').children].forEach((el,i) => {
+      el.disabled = true;
+      if(i===it.correct) el.classList.add('correct'); else if(i===oi) el.classList.add('wrong');
+    });
+    if(oi === it.correct) popScore++;
+    const ex = document.getElementById('popEx'); ex.textContent = it.ex; ex.style.display = 'block';
+    document.getElementById('popNext').style.display = 'inline-block';
+  });
+  document.getElementById('popNext').onclick = () => {
+    popIdx++;
+    if(popIdx >= popSet.length){
+      popDone = true;
+      popLastScore = popScore; popLastTotal = popSet.length; popAttemptsCount++;
+      saveState();
+    }
+    renderPop();
+  };
+}
+
+const CHEATSHEET = `
+  <h3 style="color:var(--accent);margin-top:0">Cheat Sheet</h3>
+  <table class="cheat">
+    <tr><th>Task / Fact</th><th>Rule</th></tr>
+    <tr><td>Fix PIR false triggers</td><td>Debounce (min HIGH duration) + cooldown after each event</td></tr>
+    <tr><td>Pipeline shape</td><td>Sensor trigger → local inference/decision → notification</td></tr>
+    <tr><td>Latency target</td><td>Under ~2 seconds, end to end</td></tr>
+    <tr><td>Blown budget, fast network/capture</td><td>Fix the inference/decision stage — it's the bottleneck</td></tr>
+    <tr><td>Audio feedback fix</td><td>Physical separation between speaker and mic</td></tr>
+    <tr><td>Storage fix</td><td>Rolling policy — max size/days, delete oldest first</td></tr>
+    <tr><td>Recording mode</td><td>Motion-triggered over continuous — less storage, less SD wear</td></tr>
+    <tr><td>Camera weatherproofing</td><td>Sealed clear (never tinted) acrylic window</td></tr>
+    <tr><td>PIR weatherproofing</td><td>Must stay exposed (gasket-ringed) — needs direct IR line-of-sight</td></tr>
+    <tr><td>PIR buying red flag</td><td>No adjustable sensitivity/delay pots</td></tr>
+  </table>
+  <p style="color:var(--muted);font-size:12px;margin-top:10px">Full lesson content covers the reasoning
+     behind each row — this page is for last-minute recall, not first-time learning.</p>`;
+function renderCheat(){ document.getElementById('toolWrap').innerHTML = CHEATSHEET; }
+
+/* Motion & Notification Pipeline Simulator — this project's own
+   Simulation tab. Two real, checkable panels: a PIR debounce filter
+   run on a genuinely noisy generated signal (identical logic to
+   exercises/motion_pipeline.py's debounce_motion/count_raw_high_runs),
+   and a latency budget calculator (pipeline_latency_ms/
+   meets_latency_target). */
+function mdCountRawHighRuns(signal){
+  let count = 0, i = 0;
+  const n = signal.length;
+  while(i < n){
+    if(signal[i] === 1){
+      count++;
+      while(i < n && signal[i] === 1) i++;
+    } else { i++; }
+  }
+  return count;
+}
+function mdClassifySignal(signal, minHigh, cooldown){
+  const tags = new Array(signal.length).fill('low');
+  let i = 0;
+  const n = signal.length;
+  while(i < n){
+    if(signal[i] === 1){
+      let j = i;
+      while(j < n && signal[j] === 1) j++;
+      const runLen = j - i;
+      if(runLen >= minHigh){
+        for(let k=i;k<j;k++) tags[k] = 'confirmed';
+        for(let k=j;k<Math.min(n, j+cooldown);k++) tags[k] = 'cooldown';
+        i = j + cooldown;
+      } else {
+        for(let k=i;k<j;k++) tags[k] = 'filtered';
+        i = j;
+      }
+    } else { i++; }
+  }
+  return tags;
+}
+function mdDebounceEvents(signal, minHigh, cooldown){
+  const tags = mdClassifySignal(signal, minHigh, cooldown);
+  const events = [];
+  for(let i=0;i<tags.length;i++){
+    if(tags[i] === 'confirmed' && (i===0 || tags[i-1] !== 'confirmed')) events.push(i);
+  }
+  return events;
+}
+function mdGenerateSignal(){
+  const len = 40;
+  const sig = new Array(len).fill(0);
+  let i = 0;
+  while(i < len){
+    const r = Math.random();
+    if(r < 0.12){
+      // flicker noise (too short to be real motion)
+      const flickerLen = 1 + Math.floor(Math.random()*2);
+      for(let k=0;k<flickerLen && i<len;k++,i++) sig[i] = 1;
+      i += 1 + Math.floor(Math.random()*2);
+    } else if(r < 0.22){
+      // real motion event
+      const eventLen = 4 + Math.floor(Math.random()*4);
+      for(let k=0;k<eventLen && i<len;k++,i++) sig[i] = 1;
+      i += 2 + Math.floor(Math.random()*3);
+    } else {
+      i++;
+    }
+  }
+  return sig;
+}
+let mdSignal = SAVED && Array.isArray(SAVED.mdSignal) ? SAVED.mdSignal : mdGenerateSignal();
+let mdMinHigh = SAVED && Number.isFinite(SAVED.mdMinHigh) ? SAVED.mdMinHigh : 4;
+let mdCooldown = SAVED && Number.isFinite(SAVED.mdCooldown) ? SAVED.mdCooldown : 3;
+let mdCaptureMs = SAVED && Number.isFinite(SAVED.mdCaptureMs) ? SAVED.mdCaptureMs : 150;
+let mdInferenceMs = SAVED && Number.isFinite(SAVED.mdInferenceMs) ? SAVED.mdInferenceMs : 800;
+let mdNotifyMs = SAVED && Number.isFinite(SAVED.mdNotifyMs) ? SAVED.mdNotifyMs : 400;
+let mdTargetMs = SAVED && Number.isFinite(SAVED.mdTargetMs) ? SAVED.mdTargetMs : 2000;
+
+const MD_COLORS = { low:'#1e293b', filtered:'#f87171', confirmed:'#4ade80', cooldown:'#334155' };
+function mdUpdateOutputs(){
+  const tags = mdClassifySignal(mdSignal, mdMinHigh, mdCooldown);
+  const stripEl = document.getElementById('mdStrip');
+  if(stripEl) stripEl.innerHTML = tags.map(t => `<div class="md-cell" style="background:${MD_COLORS[t]}"></div>`).join('');
+  const raw = mdCountRawHighRuns(mdSignal);
+  const events = mdDebounceEvents(mdSignal, mdMinHigh, mdCooldown);
+  const readoutEl = document.getElementById('mdMotionReadout');
+  if(readoutEl) readoutEl.innerHTML =
+    `<b>Raw HIGH runs (no debounce):</b> ${raw} &nbsp; <b>Confirmed events (debounced):</b> ${events.length}`;
+
+  const total = mdCaptureMs + mdInferenceMs + mdNotifyMs;
+  const meets = total <= mdTargetMs;
+  const latReadoutEl = document.getElementById('mdLatencyReadout');
+  if(latReadoutEl) latReadoutEl.innerHTML =
+    `<b>Total latency:</b> ${total}ms &nbsp; <b>Target:</b> ${mdTargetMs}ms &nbsp;
+     <b>Status:</b> <span style="color:${meets?'var(--good)':'var(--bad)'}">${meets?'✓ Meets target':'✗ Misses target'}</span>`;
+}
+function renderMotionSim(){
+  document.getElementById('toolWrap').innerHTML = `
+    <h3 style="color:var(--accent);margin-top:0">Motion &amp; Notification Pipeline Simulator</h3>
+    <p style="color:var(--muted);font-size:13px">Two real, checkable panels — no canned demo. Debounce a
+       genuinely noisy generated PIR signal (identical logic to
+       <code>exercises/motion_pipeline.py</code>), and budget a real end-to-end notification latency.</p>
+
+    <div class="md-section">
+      <h4>PIR debounce filter</h4>
+      <div class="md-strip" id="mdStrip"></div>
+      <div class="md-legend">
+        <span><span class="md-swatch" style="background:${MD_COLORS.low}"></span>low</span>
+        <span><span class="md-swatch" style="background:${MD_COLORS.filtered}"></span>filtered flicker</span>
+        <span><span class="md-swatch" style="background:${MD_COLORS.confirmed}"></span>confirmed event</span>
+        <span><span class="md-swatch" style="background:${MD_COLORS.cooldown}"></span>cooldown</span>
+      </div>
+      <div class="md-row">
+        <label>Min HIGH samples <input type="number" id="mdMinHighInput" value="${mdMinHigh}" min="1"></label>
+        <label>Cooldown samples <input type="number" id="mdCooldownInput" value="${mdCooldown}" min="0"></label>
+        <button class="ghost" id="mdRegenBtn">Regenerate noisy signal</button>
+      </div>
+      <div class="md-readout" id="mdMotionReadout"></div>
+    </div>
+
+    <div class="md-section">
+      <h4>Latency budget (mirrors <code>exercises/motion_pipeline.py</code>)</h4>
+      <div class="md-row">
+        <label>Capture (ms) <input type="number" id="mdCaptureInput" value="${mdCaptureMs}" step="10"></label>
+        <label>Inference/decision (ms) <input type="number" id="mdInferenceInput" value="${mdInferenceMs}" step="10"></label>
+        <label>Notify (ms) <input type="number" id="mdNotifyInput" value="${mdNotifyMs}" step="10"></label>
+        <label>Target (ms) <input type="number" id="mdTargetInput" value="${mdTargetMs}" step="100"></label>
+      </div>
+      <div class="md-readout" id="mdLatencyReadout"></div>
+    </div>`;
+
+  mdUpdateOutputs();
+
+  document.getElementById('mdMinHighInput').addEventListener('input', e => { mdMinHigh = Math.max(1, +e.target.value || 1); saveState(); mdUpdateOutputs(); });
+  document.getElementById('mdCooldownInput').addEventListener('input', e => { mdCooldown = Math.max(0, +e.target.value || 0); saveState(); mdUpdateOutputs(); });
+  document.getElementById('mdRegenBtn').onclick = () => { mdSignal = mdGenerateSignal(); saveState(); mdUpdateOutputs(); };
+  document.getElementById('mdCaptureInput').addEventListener('input', e => { mdCaptureMs = +e.target.value || 0; saveState(); mdUpdateOutputs(); });
+  document.getElementById('mdInferenceInput').addEventListener('input', e => { mdInferenceMs = +e.target.value || 0; saveState(); mdUpdateOutputs(); });
+  document.getElementById('mdNotifyInput').addEventListener('input', e => { mdNotifyMs = +e.target.value || 0; saveState(); mdUpdateOutputs(); });
+  document.getElementById('mdTargetInput').addEventListener('input', e => { mdTargetMs = +e.target.value || 0; saveState(); mdUpdateOutputs(); });
+}
+
+function letterGrade(pct){
+  if(pct === null) return { text:'—', cls:'grade-dash' };
+  if(pct >= 90) return { text:'A', cls:'grade-A' };
+  if(pct >= 80) return { text:'B', cls:'grade-B' };
+  if(pct >= 70) return { text:'C', cls:'grade-C' };
+  if(pct >= 60) return { text:'D', cls:'grade-D' };
+  return { text:'F', cls:'grade-F' };
+}
+function renderReportCard(){
+  const lessonsDone = answered.filter(Boolean).length;
+  const quizPct = QUIZ.length ? Math.round((score / QUIZ.length) * 100) : null;
+  const quizAttempted = done.size > 0;
+  const grade = letterGrade(quizAttempted ? quizPct : null);
+  const overallItems = lessonsDone + (quizAttempted ? 1 : 0);
+  const overallTotal = LESSONS.length + 1;
+  const overallPct = Math.round((overallItems / overallTotal) * 100);
+  const now = new Date();
+  document.getElementById('toolWrap').innerHTML = `
+    <div class="report-card">
+      <h3 style="color:var(--accent);margin-top:0">Report Card</h3>
+      <p style="color:var(--muted);font-size:12px;margin-top:-6px">Security Doorbell Cam &middot; generated ${now.toLocaleDateString()} ${now.toLocaleTimeString()}</p>
+      <div class="report-overall">
+        <span class="big ${grade.cls}">${grade.text}</span>
+        <span style="color:var(--muted);font-size:13px">Final quiz grade${quizAttempted ? '' : ' (not yet taken)'}</span>
+      </div>
+      <h4>Lessons</h4>
+      <div class="report-row"><span>Quick checks completed</span><span class="grade">${lessonsDone} / ${LESSONS.length}</span></div>
+      <h4>Final Quiz</h4>
+      <div class="report-row"><span>Score</span><span class="grade">${quizAttempted ? `${score} / ${QUIZ.length} (${quizPct}%)` : 'Not attempted'}</span></div>
+      <h4>Pop Quiz</h4>
+      <div class="report-row"><span>Most recent 5-question run</span><span class="grade">${popLastScore !== null ? `${popLastScore} / ${popLastTotal}` : 'Not attempted'}</span></div>
+      <div class="report-row"><span>Runs completed</span><span class="grade">${popAttemptsCount}</span></div>
+      <h4>Flashcards</h4>
+      <div class="report-row"><span>Terms marked known</span><span class="grade">${fcKnown.size} / ${KEY_TERMS.length}</span></div>
+      <h4>Match Game</h4>
+      <div class="report-row"><span>Best round (fewest attempts)</span><span class="grade">${matchBestAttempts !== null ? matchBestAttempts : 'Not completed'}</span></div>
+      <h4>Overall</h4>
+      <div class="report-row"><span>Lessons + quiz completed</span><span class="grade">${overallItems} / ${overallTotal} (${overallPct}%)</span></div>
+      <button class="ghost" id="printBtn">🖨️ Print / Save as PDF</button>
+      <p style="color:var(--muted);font-size:11px;margin-top:8px">In the print dialog, choose <b>Save as PDF</b> and
+         save it into this project's <code>docs/</code> folder to keep a dated record.</p>
+    </div>`;
+  document.getElementById('printBtn').onclick = () => window.print();
+}
+
+document.getElementById('pills').addEventListener('click', e => {
+  const p = e.target.closest('.pill'); if(!p) return; idx = +p.dataset.i; render();
+});
+document.getElementById('prev').onclick = () => { if(idx>0){ idx--; render(); } };
+document.getElementById('next').onclick = () => { if(idx<LESSONS.length){ idx++; render(); } };
+render();
+</script>
+</body></html>
